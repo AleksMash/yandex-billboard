@@ -19,10 +19,11 @@ from django.conf import settings
 from django.urls import path, re_path
 from django.views.static import serve
 
-from .views import show_main
+from .views import show_main, get_place_details
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', show_main),
+    path('places/<int:id>', get_place_details, name='place_details'),
     re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT})
 ]
