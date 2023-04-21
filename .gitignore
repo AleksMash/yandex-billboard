@@ -143,6 +143,4 @@ cython_debug/
 # others
 media/
 test/
-settings.py
 temp.py
-where_to_go/db.sqlite3
