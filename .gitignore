@@ -142,3 +142,4 @@ cython_debug/
 
 # others
 temp.py
+media/
