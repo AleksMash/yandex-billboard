@@ -141,6 +141,4 @@ cython_debug/
 .idea/
 
 # others
-media/
-test/
 temp.py
