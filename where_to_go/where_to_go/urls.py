@@ -24,7 +24,7 @@ from .views import show_main, get_place_details
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', show_main),
-    path('places/<int:id>/', get_place_details, name='place_details'),
+    path('places/<int:place_id>/', get_place_details, name='place_details'),
     path('tinymce/', include('tinymce.urls')),
     re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT})
 ]

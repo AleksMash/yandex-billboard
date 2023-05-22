@@ -10,7 +10,6 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 '''
 import os
-import sys
 
 from environs import Env
 from pathlib import Path
@@ -125,6 +124,8 @@ DATE_FORMAT = 'd E Y'
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = 'static/'
+
+STATIC_ROOT = 'assets/'
 
 STATICFILES_DIRS = [
     BASE_DIR / 'static'

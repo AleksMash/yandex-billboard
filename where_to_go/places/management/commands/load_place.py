@@ -3,7 +3,7 @@ from urllib.parse import urlparse
 
 import requests
 
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 from django.core.files.base import ContentFile
 
 
@@ -21,25 +21,25 @@ class Command(BaseCommand):
         response = requests.get(url)
         response.raise_for_status()
         place_serialized = response.json()
-        place, created = Place.objects.get_or_create(title=place_serialized['title'])
+        defaults = {
+            'description_short': place_serialized.get('description_short'),
+            'description_long': place_serialized.get('description_long'),
+            'lng': place_serialized['coordinates']['lng'],
+            'lat': place_serialized['coordinates']['lat']
+        }
+        place, created = Place.objects.get_or_create(title=place_serialized['title'],
+                                                     defaults=defaults)
         if created:
-            place.title = place_serialized['title']
-            for num, img_url in enumerate(place_serialized['imgs'], 1):
-                print(f'Скачиваем картинку {num}')
-                response = requests.get(img_url)
-                try:
+            images = place_serialized.get('imgs')
+            if images:
+                self.stdout.write(self.style.SUCCESS('Скачиваем изображения...'))
+                for num, img_url in enumerate(images, 1):
+                    response = requests.get(img_url)
                     response.raise_for_status()
-                except Exception:
-                    pass
-                else:
                     file = ContentFile(response.content)
                     image = Image.objects.create(place=place)
                     file_name = os.path.basename(urlparse(img_url).path)
                     image.image.save(file_name, file, True)
-                    place.images.add(image)
-            place.description_short = place_serialized['description_short']
-            place.description_long = place_serialized['description_long']
-            place.lng = place_serialized['coordinates']['lng']
-            place.lat = place_serialized['coordinates']['lat']
-            place.save()
-            self.stdout.write(self.style.SUCCESS('Место добавлено'))
+                self.stdout.write(self.style.SUCCESS('Место добавлено в базу данных'))
+        else:
+            self.stdout.write(self.style.SUCCESS('Данное место уже есть в базе данных'))

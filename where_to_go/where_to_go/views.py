@@ -1,19 +1,11 @@
-from django.http import HttpResponse, JsonResponse
-from django.template import loader
-from django.shortcuts import get_object_or_404
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 
 from places.models import Place
 
 
 def show_main(request):
-    template = loader.get_template('index.html')
-    context={
-        'json': {
-            'type':'FeatureCollection',
-            'features': []
-        }
-    }
     places = Place.objects.all()
     features = []
     for place in places:
@@ -30,13 +22,17 @@ def show_main(request):
             }
         }
         features.append(feature)
-    context['json']['features'] = features
-    rendered_page = template.render(context, request)
-    return HttpResponse(rendered_page)
+        context = {
+            'places': {
+                'type': 'FeatureCollection',
+                'features': features
+            }
+        }
+    return render(request, template_name='index.html', context=context)
 
 
-def get_place_details(request, id):
-    place = get_object_or_404(Place, pk=id)
+def get_place_details(request, place_id):
+    place = get_object_or_404(Place, pk=place_id)
     place_serialized = {
         'title': place.title,
         'imgs': [image.image.url for image in place.images.all()],
