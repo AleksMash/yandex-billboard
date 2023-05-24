@@ -29,17 +29,16 @@ class Command(BaseCommand):
         }
         place, created = Place.objects.get_or_create(title=place_serialized['title'],
                                                      defaults=defaults)
-        if created:
-            images = place_serialized.get('imgs')
-            if images:
-                self.stdout.write(self.style.SUCCESS('Скачиваем изображения...'))
-                for num, img_url in enumerate(images, 1):
-                    response = requests.get(img_url)
-                    response.raise_for_status()
-                    file = ContentFile(response.content)
-                    image = Image.objects.create(place=place)
-                    file_name = os.path.basename(urlparse(img_url).path)
-                    image.image.save(file_name, file, True)
-                self.stdout.write(self.style.SUCCESS('Место добавлено в базу данных'))
-        else:
+        if not created:
             self.stdout.write(self.style.SUCCESS('Данное место уже есть в базе данных'))
+            return
+        if created:
+            self.stdout.write(self.style.SUCCESS('Скачиваем изображения...'))
+            images = place_serialized.get('imgs', [])
+            for num, img_url in enumerate(images, 1):
+                response = requests.get(img_url)
+                response.raise_for_status()
+                file = ContentFile(response.content, name=os.path.basename(urlparse(img_url).path))
+                Image.objects.create(place=place, image=file)
+            self.stdout.write(self.style.SUCCESS('Место добавлено в базу данных'))
+

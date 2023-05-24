@@ -8,6 +8,7 @@ from places.models import Place
 def show_main(request):
     places = Place.objects.all()
     features = []
+
     for place in places:
         feature = {
             'type': 'Feature',
@@ -18,16 +19,17 @@ def show_main(request):
             'properties': {
                 'title': place.title,
                 'place_id': place.id,
-                'detailsUrl': reverse('place_details', kwargs={'id': place.id})
+                'detailsUrl': reverse('place_details', kwargs={'place_id': place.id})
             }
         }
         features.append(feature)
-        context = {
-            'places': {
-                'type': 'FeatureCollection',
-                'features': features
-            }
+
+    context = {
+        'places': {
+            'type': 'FeatureCollection',
+            'features': features
         }
+    }
     return render(request, template_name='index.html', context=context)
 
 
